@@ -9,8 +9,10 @@ public class Main {
         while (true) {
             respuesta = JOptionPane.showInputDialog(resultado);
             resultado = Juego.jugar(respuesta);
+            if (respuesta == null || respuesta.isEmpty()) {
+                break;
+            }
         }
 
     }
-
 }

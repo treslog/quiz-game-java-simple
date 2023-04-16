@@ -12,86 +12,135 @@ public class Juego {
         String jsonResponse = "";
         debug();
 
-        if (!param.matches("[0-5]") && !param.matches("inicio")) {
+        try {
+            if (param == null || param.isEmpty()) {
+                param = "inicio";
+            }
+
+            if (!param.matches("[0-5]") && !param.matches("inicio")) {
+                jsonResponse = juego.obtenerMenu(param);
+                return jsonResponse;
+            }
+
+            if (param.matches("inicio")) {
+                juego.reiniciarJuego();
+                jsonResponse = juego.obtenerMenu(param);
+                return jsonResponse;
+            }
+
+            if (param.matches("4")) {
+                juego.cincuentaCincuenta();
+                jsonResponse = juego.obtenerMenu(param);
+                return jsonResponse;
+            }
+
+            if (param.matches("5")) {
+                juego.saltarPregunta();
+                jsonResponse = juego.obtenerMenu(param);
+                return jsonResponse;
+            }
+
+            if (juego.preguntaActual < preguntas.obtenerNumeroPreguntas()
+                    && juego.obtenerIndexCorrecta() == Integer.parseInt(param)) {
+                juego.siguientePregunta();
+                jsonResponse = juego.obtenerMenu(param);
+                return jsonResponse;
+            }
+
+            if (juego.obtenerIndexCorrecta() != Integer.parseInt(param)) {
+                jsonResponse = juego.terminarJuego();
+                juego.reiniciarJuego();
+                return jsonResponse;
+            }
+
+            if (juego.preguntaActual == preguntas.obtenerNumeroPreguntas()
+                    && juego.obtenerIndexCorrecta() == Integer.parseInt(param)) {
+                jsonResponse = juego.ganarJuego();
+                juego.reiniciarJuego();
+                return jsonResponse;
+            }
+
             jsonResponse = juego.obtenerMenu(param);
-            return jsonResponse;
+
+        } catch (NumberFormatException e) {
+            System.err.println("Error: el parámetro debe ser un número");
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            System.err.println("Error: el parámetro no puede ser nulo");
+            e.printStackTrace();
         }
 
-        if (param.matches("inicio")) {
-            juego.reiniciarJuego();
-            jsonResponse = juego.obtenerMenu(param);
-            return jsonResponse;
+        catch (Exception e) {
+            System.err.println("Error:");
+            e.printStackTrace();
         }
 
-        if (param.matches("4")) {
-            juego.cincuentaCincuenta();
-            jsonResponse = juego.obtenerMenu(param);
-            return jsonResponse;
-        }
-
-        if (param.matches("5")) {
-            juego.saltarPregunta();
-            jsonResponse = juego.obtenerMenu(param);
-            return jsonResponse;
-        }
-
-        if (juego.preguntaActual < preguntas.obtenerNumeroPreguntas()
-                && juego.obtenerIndexCorrecta() == Integer.parseInt(param)) {
-            juego.siguientePregunta();
-            jsonResponse = juego.obtenerMenu(param);
-            return jsonResponse;
-        }
-
-        if (juego.obtenerIndexCorrecta() != Integer.parseInt(param)) {
-            jsonResponse = juego.terminarJuego();
-            juego.reiniciarJuego();
-            return jsonResponse;
-        }
-
-        if (juego.preguntaActual == preguntas.obtenerNumeroPreguntas()
-                && juego.obtenerIndexCorrecta() == Integer.parseInt(param)) {
-            jsonResponse = juego.ganarJuego();
-            juego.reiniciarJuego();
-            return jsonResponse;
-        }
-
-        jsonResponse = juego.obtenerMenu(param);
         return jsonResponse;
+
     }
 
     public String obtenerMenu(String respuesta) {
 
-        String respuestaJson = "totalPreguntas: " + (preguntas.obtenerNumeroPreguntas() + 1) + "\n";
-        respuestaJson += "preguntaNumero: " + (preguntaActual + 1) + "\n";
-        respuestaJson += "totalPuntos: " + (preguntaActual * 100) + "\n";
-        respuestaJson += "pregunta: " + "\n" + mostrarPreguntas() + "\n";
+        try {
+            String respuestaJson = "totalPreguntas: " + (preguntas.obtenerNumeroPreguntas() + 1) + "\n";
+            respuestaJson += "preguntaNumero: " + (preguntaActual + 1) + "\n";
+            respuestaJson += "totalPuntos: " + (preguntaActual * 100) + "\n";
+            respuestaJson += "pregunta: " + "\n" + mostrarPreguntas() + "\n";
 
-        return respuestaJson;
+            return respuestaJson;
+        } catch (Exception e) {
+            System.err.println("Error al obtener el menú:");
+            e.printStackTrace();
+            return "";
+        }
     }
 
     public int obtenerIndexCorrecta() {
-        return preguntas.obtenerPregunta(juego.preguntaActual).obtenerIndexRespuestaCorrecta();
+        try {
+            return preguntas.obtenerPregunta(juego.preguntaActual).obtenerIndexRespuestaCorrecta();
+        } catch (Exception e) {
+            System.err.println("Error al obtener el índice de la respuesta correcta:");
+            e.printStackTrace();
+            return -1;
+        }
     }
 
     public void siguientePregunta() {
-        preguntaActual++;
+        try {
+            preguntaActual++;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public String ganarJuego() {
-        String respuestaJson = "estado: " + "ganaste" + "\n";
-        respuestaJson += "preguntasCorrectas: " + (preguntaActual + 1) + "\n";
-        respuestaJson += "puntos: " + ((preguntaActual + 1) * 100) + "\n";
-        respuestaJson += "Escribe cualquier cosa para volver a jugar";
+        try {
+            String respuestaJson = "estado: " + "ganaste" + "\n";
+            respuestaJson += "preguntasCorrectas: " + (preguntaActual + 1) + "\n";
+            respuestaJson += "puntos: " + ((preguntaActual + 1) * 100) + "\n";
+            respuestaJson += "Escribe cualquier cosa para volver a jugar";
 
-        return respuestaJson;
+            return respuestaJson;
+        } catch (Exception e) {
+            System.err.println("Error al obtener el menú:");
+            e.printStackTrace();
+            return "";
+        }
     }
 
     public String terminarJuego() {
-        String respuestaJson = "estado: " + "perdiste" + "\n";
-        respuestaJson += "preguntasCorrectas: " + preguntaActual + "\n";
-        respuestaJson += "puntos: " + ((preguntaActual + 1) * 100) + "\n";
-        respuestaJson += "Escribe cualquier cosa para volver a jugar";
-        return respuestaJson;
+
+        try {
+            String respuestaJson = "estado: " + "perdiste" + "\n";
+            respuestaJson += "preguntasCorrectas: " + preguntaActual + "\n";
+            respuestaJson += "puntos: " + ((preguntaActual + 1) * 100) + "\n";
+            respuestaJson += "Escribe cualquier cosa para volver a jugar";
+            return respuestaJson;
+        } catch (Exception e) {
+            System.err.println("Error al obtener el menú:");
+            e.printStackTrace();
+            return "";
+        }
     }
 
     public void reiniciarJuego() {
@@ -102,6 +151,7 @@ public class Juego {
     }
 
     public void saltarPregunta() {
+
         if (preguntaSaltada) {
             return;
         }
